@@ -61,8 +61,8 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 
 	aie::Gizmos::create(10000, 10000, 10000, 10000);
 
-	view = glm::lookAt(glm::vec3(20), glm::vec3(0), glm::vec3(0, 1, 0));
-	projection = glm::perspective(glm::pi<float>() * 0.25f, 16 / 9.0f, 0.1f, 1000.0f);
+	//view = glm::lookAt(glm::vec3(20), glm::vec3(0), glm::vec3(0, 1, 0));
+	//projection = glm::perspective(glm::pi<float>() * 0.25f, 16 / 9.0f, 0.1f, 1000.0f);
 
 	return 0;
 }
