@@ -13,6 +13,8 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 {
 	planet = new Planet();
 
+	MyCamera = new FlyCamera();
+
 	m_startTime = m_clock.now();
 	m_currentTime = m_clock.now();
 	m_previousTime = m_clock.now();
@@ -39,6 +41,8 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 		return -2;
 	}
 
+	glfwSetCursorPos(m_window, 640, 360);
+
 	// Bring to front
 	glfwMakeContextCurrent(m_window);
 
@@ -61,8 +65,8 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 
 	aie::Gizmos::create(10000, 10000, 10000, 10000);
 
-	//view = glm::lookAt(glm::vec3(20), glm::vec3(0), glm::vec3(0, 1, 0));
-	//projection = glm::perspective(glm::pi<float>() * 0.25f, 16 / 9.0f, 0.1f, 1000.0f);
+	MyCamera->setLookAt(glm::vec3(20), glm::vec3(0), glm::vec3(0, 1, 0));
+	MyCamera->setPerspective(0.25f, 16 / 9.0f, 0.1f, 1000.0f);
 
 	return 0;
 }
@@ -91,7 +95,7 @@ void Application::Run()
 		}
 		planet->update(deltaTime);
 		Render();
-
+		MyCamera->update(deltaTime, m_window);
 		glfwPollEvents();
 	}
 }
@@ -99,13 +103,15 @@ void Application::Run()
 void Application::Render()
 {
 	planet->draw();
-	aie::Gizmos::draw(projection * view);
+	aie::Gizmos::draw(MyCamera->getProjectionView());
 	aie::Gizmos::clear();
 	glfwSwapBuffers(m_window);
 }
 
 void Application::Terminate()
 {
+	delete planet;
+	delete MyCamera;
 	aie::Gizmos::destroy();
 	// Clean up window and GPU linkage
 	glfwDestroyWindow(m_window);

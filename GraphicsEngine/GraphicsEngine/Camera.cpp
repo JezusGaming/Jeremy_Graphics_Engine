@@ -4,6 +4,9 @@
 
 Camera::Camera()
 {
+	m_worldTransform = glm::mat4(1);
+	m_viewTransform = glm::mat4(1);
+	m_projectTransform = glm::mat4(1);
 }
 
 
@@ -13,7 +16,7 @@ Camera::~Camera()
 
 void Camera::setPerspective(float fieldOfView, float aspectRatio, float near, float far)
 {
-	m_projectTransform = glm::perspective(glm::pi<float>() * fieldOfView, aspectRatio,near, far);
+	m_projectTransform = glm::perspective(glm::pi<float>() * fieldOfView, aspectRatio, near, far);
 }
 
 void Camera::setLookAt(glm::vec3 from, glm::vec3 to, glm::vec3 up)

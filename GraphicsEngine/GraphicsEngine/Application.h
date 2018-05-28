@@ -1,6 +1,7 @@
 #pragma once
 #include "ApplicationCore.h"
 #include "Planet.h"
+#include "FlyCamera.h"
 
 class Application
 {
@@ -21,9 +22,8 @@ protected:
 
 	GLFWwindow* m_window;
 
-	glm::mat4 view;
-	glm::mat4 projection;
-
 	Planet* planet;
+
+	FlyCamera* MyCamera;
 };
 
