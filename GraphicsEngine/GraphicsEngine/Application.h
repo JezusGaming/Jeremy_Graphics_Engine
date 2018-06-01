@@ -2,6 +2,9 @@
 #include "ApplicationCore.h"
 #include "Planet.h"
 #include "FlyCamera.h"
+#include "Mesh.h"
+#include "Shader.h"
+#include "OBJMesh.h"
 
 class Application
 {
@@ -25,5 +28,18 @@ protected:
 	Planet* planet;
 
 	FlyCamera* MyCamera;
+
+	aie::Texture m_gridTexture;
+
+	aie::ShaderProgram m_shader;
+
+	aie::OBJMesh m_bunnyMesh;
+	glm::mat4 m_bunnyTransform;
+
+	aie::OBJMesh m_spearMesh;
+	glm::mat4 m_spearTransform;
+
+	Mesh m_quadMesh;
+	glm::mat4 m_quadTransform;
 };
 

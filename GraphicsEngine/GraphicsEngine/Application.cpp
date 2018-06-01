@@ -68,6 +68,52 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 	MyCamera->setLookAt(glm::vec3(20), glm::vec3(0), glm::vec3(0, 1, 0));
 	MyCamera->setPerspective(0.25f, 16 / 9.0f, 0.1f, 1000.0f);
 
+	m_shader.loadShader(aie::eShaderStage::VERTEX,
+		"../shaders/textured.vert.txt");
+	m_shader.loadShader(aie::eShaderStage::FRAGMENT,
+		"../shaders/textured.frag.txt");
+	if (m_shader.link() == false) {
+		printf("Shader Error: %s\n", m_shader.getLastError());
+		return false;
+	}
+
+	if (m_spearMesh.load("../soulspear/soulspear.obj",
+		true, true) == false) {
+		printf("Soulspear Mesh Error!\n");
+		return false;
+	}
+	m_spearTransform = {
+		1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
+		0,0,0,1
+	};
+
+	//if (m_gridTexture.load("../textures/four_normal.tga") == false) {
+	//	printf("Failed to load texture!\n");
+	//	return false;
+	//}
+	//// create a simple quad
+	//m_quadMesh.initialiseQuad();
+	//// define a scale matrix for the quad
+	//m_quadTransform = {
+	//	10,0,0,0,
+	//	0,10,0,0,
+	//	0,0,10,0,
+	//	0,0,0,1
+	//};
+
+	//if (m_bunnyMesh.load("../stanford/bunny.obj") == false) {
+	//	printf("Bunny Mesh Error!\n");
+	//	return false;
+	//}
+	//m_bunnyTransform = {
+	//	0.5f,0,0,0,
+	//	0,0.5f,0,0,
+	//	0,0,0.5f,0,
+	//	0,0,0,1
+	//};
+
 	return 0;
 }
 
@@ -102,7 +148,24 @@ void Application::Run()
 
 void Application::Render()
 {
+	// bind shader
+	m_shader.bind();
+	// bind transform
+	auto pvm = MyCamera->getProjection() * MyCamera->getView() * m_spearTransform;
+	m_shader.bindUniform("ProjectionViewModel", pvm);
+
+	// bind texture location
+	//m_shader.bindUniform("diffuseTexture", 0);
+	//// bind texture to specified location
+	//m_gridTexture.bind(0);
+	// draw quad
+	//m_quadMesh.draw();
+
+	// draw mesh
+	//m_bunnyMesh.draw();	// draw mesh
+	m_spearMesh.draw();
 	planet->draw();
+
 	aie::Gizmos::draw(MyCamera->getProjectionView());
 	aie::Gizmos::clear();
 	glfwSwapBuffers(m_window);
