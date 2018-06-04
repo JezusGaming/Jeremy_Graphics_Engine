@@ -68,10 +68,15 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 	MyCamera->setLookAt(glm::vec3(20), glm::vec3(0), glm::vec3(0, 1, 0));
 	MyCamera->setPerspective(0.25f, 16 / 9.0f, 0.1f, 1000.0f);
 
+	m_light.diffuse = { 1, 1, 0 };
+	m_light.specular = { 1, 1, 0 };
+	m_ambientLight = { 0.25f, 0.25f, 0.25f };
+
 	m_shader.loadShader(aie::eShaderStage::VERTEX,
-		"../shaders/textured.vert.txt");
+		"../shaders/normalmap.vert.txt");
 	m_shader.loadShader(aie::eShaderStage::FRAGMENT,
-		"../shaders/textured.frag.txt");
+		"../shaders/normalmap.frag.txt");
+
 	if (m_shader.link() == false) {
 		printf("Shader Error: %s\n", m_shader.getLastError());
 		return false;
@@ -103,16 +108,16 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 	//	0,0,0,1
 	//};
 
-	//if (m_bunnyMesh.load("../stanford/bunny.obj") == false) {
-	//	printf("Bunny Mesh Error!\n");
-	//	return false;
-	//}
-	//m_bunnyTransform = {
-	//	0.5f,0,0,0,
-	//	0,0.5f,0,0,
-	//	0,0,0.5f,0,
-	//	0,0,0,1
-	//};
+	/*if (m_bunnyMesh.load("../stanford/bunny.obj") == false) {
+		printf("Bunny Mesh Error!\n");
+		return false;
+	}
+	m_bunnyTransform = {
+		0.5f,0,0,0,
+		0,0.5f,0,0,
+		0,0,0.5f,0,
+		0,0,0,1
+	};*/
 
 	return 0;
 }
@@ -140,7 +145,15 @@ void Application::Run()
 			aie::Gizmos::addLine(glm::vec3(10, 0, -10 + i), glm::vec3(-10, 0, -10 + i), i == 10 ? white : black);
 		}
 		planet->update(deltaTime);
+		
+		// query time since application started
+		float time = deltaTime;
+		// rotate light
+		m_light.direction = glm::normalize(glm::vec3(glm::cos(time * 2),
+			glm::sin(time * 2), 0));
+
 		Render();
+
 		MyCamera->update(deltaTime, m_window);
 		glfwPollEvents();
 	}
@@ -150,20 +163,38 @@ void Application::Render()
 {
 	// bind shader
 	m_shader.bind();
+	
+	// bind light
+	m_shader.bindUniform("Ia", m_ambientLight);
+	m_shader.bindUniform("Id", m_light.diffuse);
+	m_shader.bindUniform("Is", m_light.specular);
+	m_shader.bindUniform("lightDirection", m_light.direction);
+
 	// bind transform
 	auto pvm = MyCamera->getProjection() * MyCamera->getView() * m_spearTransform;
 	m_shader.bindUniform("ProjectionViewModel", pvm);
 
+	m_shader.bindUniform("cameraPosition",
+		glm::vec3(glm::inverse(MyCamera->getView())[3]));
+
+	// bind transforms for lighting
+	m_shader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_spearTransform)));
+
 	// bind texture location
-	//m_shader.bindUniform("diffuseTexture", 0);
+	//m_shader.bindUniform("diffusetexture", 0);
+
 	//// bind texture to specified location
-	//m_gridTexture.bind(0);
+	//m_gridTexture.bind(0);
+
 	// draw quad
 	//m_quadMesh.draw();
 
 	// draw mesh
-	//m_bunnyMesh.draw();	// draw mesh
-	m_spearMesh.draw();
+	//m_bunnyMesh.draw();
+
+	// draw mesh
+	m_spearMesh.draw();
+
 	planet->draw();
 
 	aie::Gizmos::draw(MyCamera->getProjectionView());

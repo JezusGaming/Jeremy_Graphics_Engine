@@ -41,5 +41,13 @@ protected:
 
 	Mesh m_quadMesh;
 	glm::mat4 m_quadTransform;
+
+	struct Light {
+		glm::vec3 direction;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
+	};
+	Light m_light;
+	glm::vec3 m_ambientLight;
 };
 
