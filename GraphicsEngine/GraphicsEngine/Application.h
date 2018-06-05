@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "OBJMesh.h"
+#include "RenderTarget.h"
 
 class Application
 {
@@ -32,6 +33,8 @@ protected:
 	aie::Texture m_gridTexture;
 
 	aie::ShaderProgram m_shader;
+	aie::ShaderProgram m_phongShader;
+	aie::ShaderProgram m_texturedShader;
 
 	aie::OBJMesh m_bunnyMesh;
 	glm::mat4 m_bunnyTransform;
@@ -42,12 +45,15 @@ protected:
 	Mesh m_quadMesh;
 	glm::mat4 m_quadTransform;
 
+	//aie::RenderTarget m_renderTarget;
+
 	struct Light {
 		glm::vec3 direction;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
 	};
 	Light m_light;
-	glm::vec3 m_ambientLight;
+	glm::vec3 m_ambientLight;
+
 };
 

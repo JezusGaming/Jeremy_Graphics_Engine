@@ -42,7 +42,7 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 	}
 
 	glfwSetCursorPos(m_window, 640, 360);
-
+	
 	// Bring to front
 	glfwMakeContextCurrent(m_window);
 
@@ -71,6 +71,21 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 	m_light.diffuse = { 1, 1, 0 };
 	m_light.specular = { 1, 1, 0 };
 	m_ambientLight = { 0.25f, 0.25f, 0.25f };
+	
+	/*if (m_renderTarget.initialise(1, resolution.x, resolution.y) == false) {
+		printf("Render Target Error!\n");
+		return false;
+	}*/
+
+	m_phongShader.loadShader(aie::eShaderStage::VERTEX,
+		"../shaders/phong.vert.txt");
+	m_phongShader.loadShader(aie::eShaderStage::FRAGMENT,
+		"../shaders/phong.frag.txt");
+
+	if (m_phongShader.link() == false) {
+		printf("Shader Error: %s\n", m_phongShader.getLastError());
+		return false;
+	}
 
 	m_shader.loadShader(aie::eShaderStage::VERTEX,
 		"../shaders/normalmap.vert.txt");
@@ -79,6 +94,16 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 
 	if (m_shader.link() == false) {
 		printf("Shader Error: %s\n", m_shader.getLastError());
+		return false;
+	}
+
+	m_texturedShader.loadShader(aie::eShaderStage::VERTEX,
+		"../shaders/textured.vert.txt");
+	m_texturedShader.loadShader(aie::eShaderStage::FRAGMENT,
+		"../shaders/textured.frag.txt");
+
+	if (m_texturedShader.link() == false) {
+		printf("Shader Error: %s\n", m_texturedShader.getLastError());
 		return false;
 	}
 
@@ -94,21 +119,21 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 		0,0,0,1
 	};
 
-	//if (m_gridTexture.load("../textures/four_normal.tga") == false) {
-	//	printf("Failed to load texture!\n");
-	//	return false;
-	//}
-	//// create a simple quad
-	//m_quadMesh.initialiseQuad();
-	//// define a scale matrix for the quad
-	//m_quadTransform = {
-	//	10,0,0,0,
-	//	0,10,0,0,
-	//	0,0,10,0,
-	//	0,0,0,1
-	//};
+	if (m_gridTexture.load("../textures/numbered_grid.tga") == false) {
+		printf("Failed to load texture!\n");
+		return false;
+	}
+	// create a simple quad
+	m_quadMesh.initialiseQuad();
+	// define a scale matrix for the quad
+	m_quadTransform = {
+		10,0,0,0,
+		0,10,0,0,
+		0,0,10,0,
+		0,0,0,1
+	};
 
-	/*if (m_bunnyMesh.load("../stanford/bunny.obj") == false) {
+	if (m_bunnyMesh.load("../stanford/bunny.obj") == false) {
 		printf("Bunny Mesh Error!\n");
 		return false;
 	}
@@ -116,8 +141,8 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 		0.5f,0,0,0,
 		0,0.5f,0,0,
 		0,0,0.5f,0,
-		0,0,0,1
-	};*/
+		5,0,0,1
+	};
 
 	return 0;
 }
@@ -147,7 +172,7 @@ void Application::Run()
 		planet->update(deltaTime);
 		
 		// query time since application started
-		float time = deltaTime;
+		float time = glfwGetTime();
 		// rotate light
 		m_light.direction = glm::normalize(glm::vec3(glm::cos(time * 2),
 			glm::sin(time * 2), 0));
@@ -169,31 +194,48 @@ void Application::Render()
 	m_shader.bindUniform("Id", m_light.diffuse);
 	m_shader.bindUniform("Is", m_light.specular);
 	m_shader.bindUniform("lightDirection", m_light.direction);
-
 	// bind transform
 	auto pvm = MyCamera->getProjection() * MyCamera->getView() * m_spearTransform;
 	m_shader.bindUniform("ProjectionViewModel", pvm);
-
-	m_shader.bindUniform("cameraPosition",
-		glm::vec3(glm::inverse(MyCamera->getView())[3]));
-
+	m_shader.bindUniform("cameraPosition", glm::vec3(glm::inverse(MyCamera->getView())[3]));
 	// bind transforms for lighting
 	m_shader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_spearTransform)));
-
-	// bind texture location
-	//m_shader.bindUniform("diffusetexture", 0);
-
-	//// bind texture to specified location
-	//m_gridTexture.bind(0);
-
-	// draw quad
-	//m_quadMesh.draw();
-
-	// draw mesh
-	//m_bunnyMesh.draw();
-
 	// draw mesh
 	m_spearMesh.draw();
+
+	// bind our render target
+	//m_renderTarget.bind();
+
+	// draw bunny with a light
+	m_phongShader.bind();
+	// bind light
+	m_phongShader.bindUniform("Ia", m_ambientLight);
+	m_phongShader.bindUniform("Id", m_light.diffuse);
+	m_phongShader.bindUniform("Is", m_light.specular);
+	m_phongShader.bindUniform("LightDirection", m_light.direction);
+	m_phongShader.bindUniform("cameraPosition", glm::vec3(glm::inverse(MyCamera->getView())[3]));
+	// bind transform
+	pvm = MyCamera->getProjection() * MyCamera->getView() * m_bunnyTransform;
+	m_phongShader.bindUniform("ProjectionViewModel", pvm);
+	// bind transforms for lighting
+	m_phongShader.bindUniform("ModelMatrix", m_bunnyTransform);
+	m_phongShader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_bunnyTransform)));
+
+	// unbind target to return to backbuffer
+	//m_renderTarget.unbind();
+
+	// draw mesh
+	m_bunnyMesh.draw();	// bind texturing shader
+	m_texturedShader.bind();
+	pvm = MyCamera->getProjection() * MyCamera->getView() * m_quadTransform;
+	m_texturedShader.bindUniform("ProjectionViewModel", pvm);
+	// bind texture location
+	m_texturedShader.bindUniform("diffuseTexture", 0);
+	//m_renderTarget.getTarget(0).bind(0);
+	// bind texture to specified location
+	m_gridTexture.bind(0);
+	// draw quad
+	m_quadMesh.draw();
 
 	planet->draw();
 
