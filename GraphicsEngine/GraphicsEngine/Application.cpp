@@ -68,7 +68,7 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 	MyCamera->setLookAt(glm::vec3(20), glm::vec3(0), glm::vec3(0, 1, 0));
 	MyCamera->setPerspective(0.25f, 16 / 9.0f, 0.1f, 1000.0f);
 
-	m_light.diffuse = { 1, 1, 0 };
+	m_light.diffuse = { 1, 1, 1 };
 	m_light.specular = { 1, 1, 0 };
 	m_ambientLight = { 0.25f, 0.25f, 0.25f };
 	
@@ -133,7 +133,7 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 		0,0,0,1
 	};
 
-	if (m_bunnyMesh.load("../stanford/bunny.obj") == false) {
+	if (m_bunnyMesh.load("../Rabbit/Rabbit.obj", true, true) == false) {
 		printf("Bunny Mesh Error!\n");
 		return false;
 	}
@@ -141,7 +141,51 @@ int Application::Initialize(const glm::ivec2 & resolution, const char * window)
 		0.5f,0,0,0,
 		0,0.5f,0,0,
 		0,0,0.5f,0,
-		5,0,0,1
+		5,2,0,1
+	};
+
+	if (m_catMesh.load("../cat/cat.obj", true, true) == false) {
+		printf("Bunny Mesh Error!\n");
+		return false;
+	}
+	m_catTransform = {
+		0.5f,0,0,0,
+		0,0.5f,0,0,
+		0,0,0.5f,0,
+		-5,2,0,1
+	};
+
+	if (m_cargoMesh.load("../Cargo_container_01/Cargo_container_01.obj", true, true) == false) {
+		printf("Bunny Mesh Error!\n");
+		return false;
+	}
+	m_cargoTransform = {
+		0.5f,0,0,0,
+		0,0.5f,0,0,
+		0,0,0.5f,0,
+		0,0,-5,1
+	};
+
+	if (m_grassMesh01.load("../Grass pack/Grass_03.obj", true, true) == false) {
+		printf("Bunny Mesh Error!\n");
+		return false;
+	}
+	m_grassTransform01 = {
+		0.5f,0,0,0,
+		0,0.5f,0,0,
+		0,0,0.5f,0,
+		0,0,5,1
+	};
+
+	if (m_grassMesh02.load("../Grass pack/Grass_02.obj", true, true) == false) {
+		printf("Bunny Mesh Error!\n");
+		return false;
+	}
+	m_grassTransform02 = {
+		0.5f,0,0,0,
+		0,0.5f,0,0,
+		0,0,0.5f,0,
+		0,0,0,1
 	};
 
 	return 0;
@@ -206,26 +250,92 @@ void Application::Render()
 	// bind our render target
 	//m_renderTarget.bind();
 
-	// draw bunny with a light
-	m_phongShader.bind();
+	// bind shader
+	m_shader.bind();
+
 	// bind light
-	m_phongShader.bindUniform("Ia", m_ambientLight);
-	m_phongShader.bindUniform("Id", m_light.diffuse);
-	m_phongShader.bindUniform("Is", m_light.specular);
-	m_phongShader.bindUniform("LightDirection", m_light.direction);
-	m_phongShader.bindUniform("cameraPosition", glm::vec3(glm::inverse(MyCamera->getView())[3]));
+	m_shader.bindUniform("Ia", m_ambientLight);
+	m_shader.bindUniform("Id", m_light.diffuse);
+	m_shader.bindUniform("Is", m_light.specular);
+	m_shader.bindUniform("lightDirection", m_light.direction);
 	// bind transform
 	pvm = MyCamera->getProjection() * MyCamera->getView() * m_bunnyTransform;
-	m_phongShader.bindUniform("ProjectionViewModel", pvm);
+	m_shader.bindUniform("ProjectionViewModel", pvm);
+	m_shader.bindUniform("cameraPosition", glm::vec3(glm::inverse(MyCamera->getView())[3]));
 	// bind transforms for lighting
-	m_phongShader.bindUniform("ModelMatrix", m_bunnyTransform);
-	m_phongShader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_bunnyTransform)));
+	m_shader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_bunnyTransform)));
+	// draw mesh
+	m_bunnyMesh.draw();
 
 	// unbind target to return to backbuffer
 	//m_renderTarget.unbind();
 
+	// bind shader
+	m_shader.bind();
+
+	// bind light
+	m_shader.bindUniform("Ia", m_ambientLight);
+	m_shader.bindUniform("Id", m_light.diffuse);
+	m_shader.bindUniform("Is", m_light.specular);
+	m_shader.bindUniform("lightDirection", m_light.direction);
+	// bind transform
+	pvm = MyCamera->getProjection() * MyCamera->getView() * m_catTransform;
+	m_shader.bindUniform("ProjectionViewModel", pvm);
+	m_shader.bindUniform("cameraPosition", glm::vec3(glm::inverse(MyCamera->getView())[3]));
+	// bind transforms for lighting
+	m_shader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_catTransform)));
 	// draw mesh
-	m_bunnyMesh.draw();	// bind texturing shader
+	m_catMesh.draw();
+
+	// bind shader
+	m_shader.bind();
+
+	// bind light
+	m_shader.bindUniform("Ia", m_ambientLight);
+	m_shader.bindUniform("Id", m_light.diffuse);
+	m_shader.bindUniform("Is", m_light.specular);
+	m_shader.bindUniform("lightDirection", m_light.direction);
+	// bind transform
+	pvm = MyCamera->getProjection() * MyCamera->getView() * m_cargoTransform;
+	m_shader.bindUniform("ProjectionViewModel", pvm);
+	m_shader.bindUniform("cameraPosition", glm::vec3(glm::inverse(MyCamera->getView())[3]));
+	// bind transforms for lighting
+	m_shader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_cargoTransform)));
+	// draw mesh
+	m_cargoMesh.draw();
+
+	// bind shader
+	m_shader.bind();
+
+	// bind light
+	m_shader.bindUniform("Ia", m_ambientLight);
+	m_shader.bindUniform("Id", m_light.diffuse);
+	m_shader.bindUniform("Is", m_light.specular);
+	m_shader.bindUniform("lightDirection", m_light.direction);
+	// bind transform
+	pvm = MyCamera->getProjection() * MyCamera->getView() * m_grassTransform01;
+	m_shader.bindUniform("ProjectionViewModel", pvm);
+	m_shader.bindUniform("cameraPosition", glm::vec3(glm::inverse(MyCamera->getView())[3]));
+	// bind transforms for lighting
+	m_shader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_grassTransform01)));
+	// draw mesh
+	m_grassMesh01.draw();
+
+	// bind light
+	m_shader.bindUniform("Ia", m_ambientLight);
+	m_shader.bindUniform("Id", m_light.diffuse);
+	m_shader.bindUniform("Is", m_light.specular);
+	m_shader.bindUniform("lightDirection", m_light.direction);
+	// bind transform
+	pvm = MyCamera->getProjection() * MyCamera->getView() * m_grassTransform02;
+	m_shader.bindUniform("ProjectionViewModel", pvm);
+	m_shader.bindUniform("cameraPosition", glm::vec3(glm::inverse(MyCamera->getView())[3]));
+	// bind transforms for lighting
+	m_shader.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_grassTransform02)));
+	// draw mesh
+	m_grassMesh02.draw();
+
+	// bind texturing shader
 	m_texturedShader.bind();
 	pvm = MyCamera->getProjection() * MyCamera->getView() * m_quadTransform;
 	m_texturedShader.bindUniform("ProjectionViewModel", pvm);

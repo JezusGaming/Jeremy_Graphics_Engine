@@ -39,8 +39,20 @@ protected:
 	aie::OBJMesh m_bunnyMesh;
 	glm::mat4 m_bunnyTransform;
 
+	aie::OBJMesh m_catMesh;
+	glm::mat4 m_catTransform;
+
 	aie::OBJMesh m_spearMesh;
 	glm::mat4 m_spearTransform;
+
+	aie::OBJMesh m_cargoMesh;
+	glm::mat4 m_cargoTransform;
+
+	aie::OBJMesh m_grassMesh01;
+	glm::mat4 m_grassTransform01;
+
+	aie::OBJMesh m_grassMesh02;
+	glm::mat4 m_grassTransform02;
 
 	Mesh m_quadMesh;
 	glm::mat4 m_quadTransform;
