@@ -1,5 +1,7 @@
 #include "Planet.h"
-
+//-----------------------------------------------------------------------------------------------
+// constructer initializes values.
+//-----------------------------------------------------------------------------------------------
 Planet::Planet()
 {
 	parentMatrix = glm::mat4(1);
@@ -16,11 +18,17 @@ Planet::Planet()
 	globalMatrix = localMatrix * parentMatrix;
 }
 
-
+//-----------------------------------------------------------------------------------------------
+// destructer deallocates memory.
+//-----------------------------------------------------------------------------------------------
 Planet::~Planet()
 {
 }
-
+//-----------------------------------------------------------------------------------------------
+// updates the planet.
+// Param:
+//		deltaTime: A float which represents deltatime which increases over time
+//-----------------------------------------------------------------------------------------------
 void Planet::update(float deltaTime)
 {
 	// Create rotation matrix
@@ -40,7 +48,9 @@ void Planet::update(float deltaTime)
 	// once child syncs with parent
 	globalMatrix = parentMatrix * localMatrix;
 }
-
+//-----------------------------------------------------------------------------------------------
+// draws the planet.
+//-----------------------------------------------------------------------------------------------
 void Planet::draw()
 {
 	aie::Gizmos::addSphere(glm::vec3(0), 1, 4, 4, glm::vec4(1, 1, 0, 1), &parentMatrix);

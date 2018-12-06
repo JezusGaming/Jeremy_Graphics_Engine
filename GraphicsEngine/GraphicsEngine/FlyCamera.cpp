@@ -1,17 +1,26 @@
 #include "FlyCamera.h"
 
 
-
+//-----------------------------------------------------------------------------------------------
+// constructer initializes values.
+//-----------------------------------------------------------------------------------------------
 FlyCamera::FlyCamera()
 {
 	m_fSpeed = 10;
 }
 
-
+//-----------------------------------------------------------------------------------------------
+// destructer deallocates memory.
+//-----------------------------------------------------------------------------------------------
 FlyCamera::~FlyCamera()
 {
 }
-
+//-----------------------------------------------------------------------------------------------
+// updates the flyCamera.
+// Param:
+//		deltaTime: A float which represents deltatime which increases over time
+//		a_GLWindow: A pointer to the window.
+//-----------------------------------------------------------------------------------------------
 void FlyCamera::update(float deltaTime, GLFWwindow* a_GLWindow)
 {
 	// Calculate delta XY of mouse
@@ -34,7 +43,7 @@ void FlyCamera::update(float deltaTime, GLFWwindow* a_GLWindow)
 	m_viewTransform = rotMat * m_viewTransform;
 	// Update world transform
 	m_worldTransform = glm::inverse(m_viewTransform);
-
+	// Moves the camera based on the input
 	if (glfwGetKey(a_GLWindow, GLFW_KEY_W))
 	{
 		m_worldTransform[3] += m_worldTransform[2] * deltaTime * -m_fSpeed;
@@ -57,7 +66,11 @@ void FlyCamera::update(float deltaTime, GLFWwindow* a_GLWindow)
 
 	updateProjectionViewTransform();
 }
-
+//-----------------------------------------------------------------------------------------------
+// updates the flyCamera.
+// Param:
+//		speed: A float wich sets the speed of the flying camera
+//-----------------------------------------------------------------------------------------------
 void FlyCamera::setSpeed(float speed)
 {
 	m_fSpeed = speed;

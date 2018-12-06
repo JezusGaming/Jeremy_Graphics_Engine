@@ -6,16 +6,41 @@
 #include "Shader.h"
 #include "OBJMesh.h"
 #include "RenderTarget.h"
+#include "ParticleEmitter.h"
 
 class Application
 {
 public:
+	//-----------------------------------------------------------------------------------------------
+	// constructer initializes values.
+	//-----------------------------------------------------------------------------------------------
 	Application();
+	//-----------------------------------------------------------------------------------------------
+	// destructer deallocates memory.
+	//-----------------------------------------------------------------------------------------------
 	~Application();
-
+	//-----------------------------------------------------------------------------------------------
+	// initalises the application and their variables such as window size, shaders, etc.
+	//
+	// Param:
+	//		resolution: a ivec2 which sets the resolution of the app.
+	//		window: a char* which is used to give the app window a name.
+	//
+	//	Returns:
+	//			returns an int representing a faliure code if fails. 
+	//-----------------------------------------------------------------------------------------------
 	int Initialize(const glm::ivec2 & resolution = glm::ivec2(1280,720), const char * window = "Graphics engine");
+	//-----------------------------------------------------------------------------------------------
+	// Runs the applicaton and updates anything within.
+	//-----------------------------------------------------------------------------------------------
 	void Run();
+	//-----------------------------------------------------------------------------------------------
+	// draws everything to the screen.
+	//-----------------------------------------------------------------------------------------------
 	void Render();
+	//-----------------------------------------------------------------------------------------------
+	// shutsdown the applicatoin.
+	//-----------------------------------------------------------------------------------------------
 	void Terminate();
 
 protected:
@@ -26,8 +51,7 @@ protected:
 
 	GLFWwindow* m_window;
 
-	Planet* planet;
-
+	//Planet* planet;
 	FlyCamera* MyCamera;
 
 	aie::Texture m_gridTexture;
@@ -35,6 +59,8 @@ protected:
 	aie::ShaderProgram m_shader;
 	aie::ShaderProgram m_phongShader;
 	aie::ShaderProgram m_texturedShader;
+	aie::ShaderProgram m_particleShader;
+	glm::mat4 m_particleTransform;
 
 	aie::OBJMesh m_bunnyMesh;
 	glm::mat4 m_bunnyTransform;
@@ -56,6 +82,8 @@ protected:
 
 	Mesh m_quadMesh;
 	glm::mat4 m_quadTransform;
+
+	ParticleEmitter* m_emitter;
 
 	//aie::RenderTarget m_renderTarget;
 

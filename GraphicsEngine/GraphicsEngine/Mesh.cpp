@@ -1,6 +1,8 @@
 #include "Mesh.h"
 
-
+//-----------------------------------------------------------------------------------------------
+// destructer deallocates memory.
+//-----------------------------------------------------------------------------------------------
 Mesh::~Mesh()
 {
 	glDeleteVertexArrays(1, &vao);
@@ -8,7 +10,9 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &ibo);
 
 }
-
+//-----------------------------------------------------------------------------------------------
+// initialised a mesh based on the parameters.
+//-----------------------------------------------------------------------------------------------
 void Mesh::initialise(unsigned int vertexCount, const Vertex * vertices, unsigned int indexCount, unsigned int * indices)
 {
 	assert(vao == 0);
@@ -20,23 +24,21 @@ void Mesh::initialise(unsigned int vertexCount, const Vertex * vertices, unsigne
 	// bind vertex buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	// fill vertex buffer
-	glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex),
-		vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 	// enable first element as position
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE,
-		sizeof(Vertex), 0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	// bind indices if there are any
 	if (indexCount != 0) {
 		glGenBuffers(1, &ibo);
 		// bind vertex buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		// fill vertex buffer
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-			indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 		triCount = indexCount / 3;
 	}
-	else {
+	else 
+	{
 		triCount = vertexCount / 3;
 	}
 	// unbind buffers
@@ -44,7 +46,9 @@ void Mesh::initialise(unsigned int vertexCount, const Vertex * vertices, unsigne
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-
+//-----------------------------------------------------------------------------------------------
+// initialised a quad mesh which can be textured in the future.
+//-----------------------------------------------------------------------------------------------
 void Mesh::initialiseQuad()
 {
 	// check that the mesh is not initialized already
@@ -84,13 +88,11 @@ void Mesh::initialiseQuad()
 	vertices[5].normal = { 0, 1, 0, 0 };
 
 	// fill vertex buffer
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(Vertex),
-		vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 
 	// enable first element as position
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE,
-		sizeof(Vertex), 0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 
 	// enable second element as normal
 	glEnableVertexAttribArray(1);
@@ -99,8 +101,7 @@ void Mesh::initialiseQuad()
 
 	// enable third element as texture
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE,
-		sizeof(Vertex), (void*)32);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)32);
 
 	// unbind buffers
 	glBindVertexArray(0);
@@ -114,9 +115,11 @@ void Mesh::draw()
 	glBindVertexArray(vao);
 	// using indices or just vertices?
 	if (ibo != 0)
-		glDrawElements(GL_TRIANGLES, 3 * triCount,
-			GL_UNSIGNED_INT, 0);
+	{
+		glDrawElements(GL_TRIANGLES, 3 * triCount, GL_UNSIGNED_INT, 0);
+	}
 	else
+	{
 		glDrawArrays(GL_TRIANGLES, 0, 3 * triCount);
-
+	}
 }
